@@ -7,11 +7,13 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-builder.Services.AddScoped<MainContext>();
 builder.Services.AddScoped<IMediator, Mediator>();
 
-builder.Services.AddDbContext<MainContext>(
-    o => o.UseInMemoryDatabase("test"));
+var dbOptions = new DbContextOptionsBuilder<MainContext>()
+    .UseInMemoryDatabase(databaseName: "test")
+    .Options;
+var context = new MainContext(dbOptions);
+builder.Services.AddSingleton<MainContext>(x => context);
 
 builder.Services
     .AddCQRS(typeof(Program).Assembly)

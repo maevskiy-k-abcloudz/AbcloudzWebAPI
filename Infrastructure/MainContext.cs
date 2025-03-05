@@ -7,5 +7,5 @@ public class MainContext : DbContext
     {
 
     }
-    public DbSet<UserEntity> Users;
+    public DbSet<UserEntity> Users { get; set; }
 }
