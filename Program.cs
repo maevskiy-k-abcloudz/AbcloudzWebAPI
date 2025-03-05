@@ -7,6 +7,16 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+builder.Services.AddScoped<MainContext>();
+builder.Services.AddScoped<IMediator, Mediator>();
+
+builder.Services.AddDbContext<MainContext>(
+    o => o.UseInMemoryDatabase("test"));
+
+builder.Services
+    .AddCQRS(typeof(Program).Assembly)
+    .AddEntityFrameworkIntegration<MainContext>(TransactionBehaviorEnum.ScopeBehavior);
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
