@@ -19,6 +19,6 @@ public class GetUserListQueryHandler : QueryHandler<GetUserListQuery, UserInList
             })
             .ToListAsync(cancellationToken);
 
-        return new UserInListDto{Users = result};
+        return new UserInListDto { Users = result };
     }
 }

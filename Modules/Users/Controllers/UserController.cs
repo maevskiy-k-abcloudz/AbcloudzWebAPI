@@ -16,7 +16,7 @@ public class UserController : ControllerBase
     [HttpPost("create")]
     public async Task<Guid> Create([FromBody] string email)
     {
-        return await _mediator.Send(new CreateUserCommand(new UserCreateDto{ Email = email }));
+        return await _mediator.Send(new CreateUserCommand(new UserCreateDto { Email = email }));
     }
 
     [HttpGet("list")]
@@ -25,9 +25,21 @@ public class UserController : ControllerBase
         return await _mediator.Send(new GetUserListQuery());
     }
 
-    [HttpGet(":id")]
+    [HttpGet("{id:Guid}")]
     public async Task<UserDto> Get([FromRoute] Guid id)
     {
         return await _mediator.Send(new GetUserQuery(id));
+    }
+
+    [HttpDelete("{id:Guid}")]
+    public async Task Delete([FromRoute] Guid id)
+    {
+        await _mediator.Send(new DeleteUserCommand(id));
+    }
+
+    [HttpPut("update")]
+    public async Task Update([FromBody] UserDto user)
+    {
+        await _mediator.Send(new UpdateUserCommand(user));
     }
 }

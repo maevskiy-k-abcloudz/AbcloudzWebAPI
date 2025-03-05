@@ -1,9 +1,25 @@
 namespace AbcloudzWebAPI.Modules.Users.Handlers.Get;
 
-public class GetUserQueryHandler : QueryHandler<GetUserQuery, UserDto>
+public class GetUserQueryHandler : QueryHandler<GetUserQuery, UserDto?>
 {
-    protected override Task<UserDto> HandleAsync(GetUserQuery query, CancellationToken cancellationToken)
+    private readonly MainContext _context;
+
+    public GetUserQueryHandler(MainContext context)
     {
-        throw new NotImplementedException();
+        _context = context;
+    }
+
+    protected override async Task<UserDto?> HandleAsync(GetUserQuery query, CancellationToken cancellationToken)
+    {
+        var result = await _context.Users
+            .Where(x => x.Id == query.UserId)
+            .Select(x => new UserDto()
+            {
+                Id = x.Id,
+                Email = x.Email,
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return result;
     }
 }

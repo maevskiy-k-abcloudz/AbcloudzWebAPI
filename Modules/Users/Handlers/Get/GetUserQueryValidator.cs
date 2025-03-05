@@ -10,6 +10,6 @@ public class GetUserQueryValidator : AbstractValidator<GetUserQuery>
         //     RuleFor(x => x.Forename).NotNull();
         // });
 
-        RuleFor(x => x.UserId).Empty();
+        RuleFor(x => x.UserId).NotEmpty();
     }
 }
