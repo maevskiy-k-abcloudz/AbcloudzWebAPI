@@ -21,6 +21,8 @@ namespace AbcloudzWebAPI.Services
     {
         private readonly AppDbContext _context;
 
+        private const string USER_NOT_FOUND = "User is not found";
+
         public UserService(AppDbContext context)
         {
             _context = context;
@@ -55,7 +57,7 @@ namespace AbcloudzWebAPI.Services
 
             if (user == null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(USER_NOT_FOUND);
             }
 
             _context.Users.Remove(user);
@@ -68,7 +70,7 @@ namespace AbcloudzWebAPI.Services
 
             if (user == null)
             {
-                throw new KeyNotFoundException();
+                throw new KeyNotFoundException(USER_NOT_FOUND);
             }
 
             return ToDTO(user);
