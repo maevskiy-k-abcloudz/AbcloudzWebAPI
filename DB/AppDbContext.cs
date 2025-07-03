@@ -11,5 +11,19 @@ namespace AbcloudzWebAPI.DB
         {
 
         }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<User>(x =>
+            {
+                x.HasKey(x => x.Id);
+                x.HasIndex(x => x.PhoneNumber)
+                    .IsUnique();
+                x.HasIndex(x => x.Email)
+                    .IsUnique();
+            });
+
+            base.OnModelCreating(modelBuilder);
+        }
     }
 }

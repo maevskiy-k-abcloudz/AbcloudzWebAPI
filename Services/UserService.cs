@@ -30,7 +30,7 @@ namespace AbcloudzWebAPI.Services
         {
             if (await _context.Users.AnyAsync(x => x.Email == model.Email || x.PhoneNumber == model.PhoneNumber))
             {
-                // TODO return
+                throw new ArgumentException("Email and phone numbers should be unique");
             }
 
             var user = new User
@@ -41,10 +41,7 @@ namespace AbcloudzWebAPI.Services
                 PhoneNumber = model.PhoneNumber,
             };
 
-            var tmpSource = ASCIIEncoding.ASCII.GetBytes(model.Password);
-            var hash = System.Security.Cryptography.MD5.HashData(tmpSource);
-
-            user.PasswordHash = hash;
+            user.PasswordHash = GetHash(model.Password);
 
             await _context.AddAsync(user);
             await _context.SaveChangesAsync();
@@ -58,7 +55,7 @@ namespace AbcloudzWebAPI.Services
 
             if (user == null)
             {
-                // TODO return not found
+                throw new KeyNotFoundException();
             }
 
             _context.Users.Remove(user);
@@ -71,7 +68,7 @@ namespace AbcloudzWebAPI.Services
 
             if (user == null)
             {
-                // TODO
+                throw new KeyNotFoundException();
             }
 
             return ToDTO(user);
@@ -80,6 +77,8 @@ namespace AbcloudzWebAPI.Services
         public async Task<PagedResponse<UserDTO>> GetAsync(SearchUsersDTO model)
         {
             var query = _context.Users.AsQueryable();
+
+            model.Term = model.Term?.Trim();
 
             if (!string.IsNullOrWhiteSpace(model.Term))
             {
@@ -114,12 +113,30 @@ namespace AbcloudzWebAPI.Services
             return result;
         }
 
-        public Task UpdateAsync(UpdateUserDTO model)
+        public async Task UpdateAsync(UpdateUserDTO model)
         {
-            throw new NotImplementedException();
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.Id == model.Id);
+
+            if (user == null)
+            {
+                throw new KeyNotFoundException();
+            }
+
+            user.FirstName = model.FirstName ?? user.FirstName;
+            user.LastName = model.FirstName ?? user.LastName;
+            user.Email = model.FirstName ?? user.Email;
+            user.PhoneNumber = model.FirstName ?? user.PhoneNumber;
+            user.PasswordHash = model.Password != null ? GetHash(model.Password) : user.PasswordHash;
+
+            if (await _context.Users.AnyAsync(x => (x.Email == user.Email || x.PhoneNumber == user.PhoneNumber) && x.Id != user.Id))
+            {
+                throw new ArgumentException("Email and phone numbers should be unique");
+            }
+
+            await _context.SaveChangesAsync();
         }
 
-        private UserDTO ToDTO(User user)
+        private static UserDTO ToDTO(User user)
         => new UserDTO
         {
             Id = user.Id,
@@ -128,5 +145,12 @@ namespace AbcloudzWebAPI.Services
             LastName = user.LastName,
             PhoneNumber = user.PhoneNumber,
         };
+
+        private static byte[] GetHash(string value)
+        {
+            var tmpSource = Encoding.ASCII.GetBytes(value);
+            var hash = System.Security.Cryptography.MD5.HashData(tmpSource);
+            return hash;
+        }
     }
 }
